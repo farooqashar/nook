@@ -7,9 +7,14 @@ In this takehome project, we want to understand your:
 
 We want to respect your time, so please try not to spend more than 5 hours on this. We know that this is a challenging task & you are under time pressure and will keep that in mind when evaluating your solution.
 
-### Instructions
+### INSTRUCTIONS FOR RUNNING THE APP
 
-To run the app simply "npm i" and then "npm start"
+#### Frontend
+After cloning and installing the packages, run `npm i` in the root folder and then run `npm start` to start the React frontend server at (likely) http://localhost:3000/.
+
+#### Backend
+After cloning and installing the packages, cd into `src` folder and run `node server.js` to start the node.js backend server at (likely) http://localhost:4000/.
+
 
 ### Problem
 Your task is to build a collaborative “Watch Party” app that lets a distributed group of users watch youtube videos together. The frontend should be written in Typescript (we have a skeleton for you set up) and the backend should be written in Node.JS. The app should support two main pages:
