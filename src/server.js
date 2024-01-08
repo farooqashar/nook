@@ -33,6 +33,14 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("seekVideo", ({sessionId, seekTime}) => {
+    if (seekTime) {
+      const progress = {playedSeconds: seekTime}
+      io.to(sessionId).emit("syncProgress", progress);
+    }
+
+  });
+
   socket.on("onPause", (sessionId) => {
     io.to(sessionId).emit("pause");
   });

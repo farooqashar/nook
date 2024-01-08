@@ -13,7 +13,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [pause, setPause] = useState(false);
-  const [startTime, setStartTime] = useState(0);
+  const [prevNum, setPrevNum] = useState(0);
   const player = useRef<ReactPlayer>(null);
 
   socket.on("pause", () => {
@@ -27,6 +27,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
   socket.on("syncProgress", (progress) => {
     player.current?.seekTo(progress.playedSeconds, 'seconds');
   })
+
+  // socket.on("progress", (progress) => {
+  //   player.current?.seekTo(progress.playedSeconds, 'seconds');
+  // })
 
   const handleReady = () => {
     setIsReady(true);
@@ -76,6 +80,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
     loadedSeconds: number;
   }) => {
     socket.emit("onProgress", {sessionId, state})
+
+    const seekThreshold = 2;
+
+    // Check if the difference between current and previous 'playedSeconds' is greater than the threshold
+    if (Math.abs(state.playedSeconds - prevNum) > seekThreshold) {
+      // if (prevPlayedSeconds !== 0) {
+        // A seek action is detected
+        const seekTime = state && state.playedSeconds;
+        socket.emit("seekVideo", { sessionId, seekTime });
+      // }
+    }
+    setPrevNum(state.playedSeconds);
+
     console.log("Video progress: ", state);
   };
 
@@ -98,13 +115,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
           ref={player}
           url={url}
           playing={hasJoined && !pause}
-          config={{ 
-            youtube: {
-              playerVars: {
-                start: startTime
-              }
-            }
-          }}
           controls={!hideControls}
           onReady={handleReady}
           onEnded={handleEnd}
