@@ -1,16 +1,28 @@
 import { Box, Button } from "@mui/material";
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
+import {socket} from "../App";
 
 interface VideoPlayerProps {
   url: string;
   hideControls?: boolean;
+  sessionId: string | undefined;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId }) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [pause, setPause] = useState(false);
+  // const [startTime, setStartTime] = useState(0);
   const player = useRef<ReactPlayer>(null);
+
+  socket.on("pause", () => {
+    setPause(true);
+  })
+
+  socket.on("play", () => {
+    setPause(false);
+  })
 
   const handleReady = () => {
     setIsReady(true);
@@ -38,6 +50,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
       "User played video at time: ",
       player.current?.getCurrentTime()
     );
+    socket.emit("onPlay", sessionId);
   };
 
   const handlePause = () => {
@@ -45,6 +58,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
       "User paused video at time: ",
       player.current?.getCurrentTime()
     );
+    socket.emit("onPause", sessionId);
   };
 
   const handleBuffer = () => {
@@ -57,6 +71,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
     loaded: number;
     loadedSeconds: number;
   }) => {
+    socket.emit("onProgress", {sessionId, state})
     console.log("Video progress: ", state);
   };
 
@@ -78,7 +93,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
         <ReactPlayer
           ref={player}
           url={url}
-          playing={hasJoined}
+          playing={hasJoined && !pause}
           controls={!hideControls}
           onReady={handleReady}
           onEnded={handleEnd}

@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import {socket} from "../App";;
+
 
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
@@ -12,9 +14,14 @@ const WatchSession: React.FC = () => {
 
   const [linkCopied, setLinkCopied] = useState(false);
 
+  socket.on("updatedMapping", (mapping) => {
+    const url = sessionId && mapping[sessionId]["url"];
+    sessionId && setUrl(url);
+  })
+
   useEffect(() => {
     // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session
-    setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
+    socket.emit("joinSession", sessionId)
 
     // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page
   }, [sessionId]);
@@ -66,7 +73,7 @@ const WatchSession: React.FC = () => {
             </Button>
           </Tooltip>
         </Box>
-        <VideoPlayer url={url} />;
+        <VideoPlayer url={url} sessionId={sessionId}/>;
       </>
     );
   }
