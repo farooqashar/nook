@@ -21,6 +21,7 @@ const WatchSession: React.FC = () => {
 
   useEffect(() => {
     // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session
+
     socket.emit("joinSession", sessionId)
 
     // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page

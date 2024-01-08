@@ -13,7 +13,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [pause, setPause] = useState(false);
-  // const [startTime, setStartTime] = useState(0);
+  const [startTime, setStartTime] = useState(0);
   const player = useRef<ReactPlayer>(null);
 
   socket.on("pause", () => {
@@ -22,6 +22,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
 
   socket.on("play", () => {
     setPause(false);
+  })
+
+  socket.on("syncProgress", (progress) => {
+    player.current?.seekTo(progress.playedSeconds, 'seconds');
   })
 
   const handleReady = () => {
@@ -94,6 +98,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls, sessionId 
           ref={player}
           url={url}
           playing={hasJoined && !pause}
+          config={{ 
+            youtube: {
+              playerVars: {
+                start: startTime
+              }
+            }
+          }}
           controls={!hideControls}
           onReady={handleReady}
           onEnded={handleEnd}
